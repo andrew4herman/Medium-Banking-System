@@ -6,27 +6,29 @@ import java.util.Random;
 
 public class CardGenerator {
 
-    private static String BINumber;
+    private final CardValidator cardValidator;
+    private final String BINumber;
 
-    public static Card generate(String BINumber) {
-        CardGenerator.BINumber = BINumber;
+    public CardGenerator(CardValidator cardValidator, String BINumber) {
+        this.cardValidator = cardValidator;
+        this.BINumber = BINumber;
+    }
 
-        Card card = new Card(
+    public Card generate() {
+        return new Card(
                 createCardNumber(),
                 createPIN()
         );
-
-        return card;
     }
 
-    private static String createCardNumber() {
+    private String createCardNumber() {
         String accIdentifier = generateNum(9);
-        String checksum = getCheckSumFor(BINumber + accIdentifier);
+        String checksum = String.valueOf(cardValidator.getCheckSumFor(BINumber + accIdentifier));
 
         return (BINumber + accIdentifier + checksum);
     }
 
-    private static String createPIN() {
+    private String createPIN() {
         return generateNum(4);
     }
 
@@ -36,26 +38,5 @@ public class CardGenerator {
             number.append((new Random()).nextInt(10));
         }
         return number.toString();
-    }
-
-    private static String getCheckSumFor(String number) {
-        String[] numbers = number.split("");
-        int sum = 0;
-
-        for (int i = 0; i < numbers.length; i++) {
-            int num = Integer.parseInt(numbers[i]);
-
-            if (i % 2 == 0) num *= 2;
-            if (num > 9) num -= 9;
-
-            sum += num;
-        }
-
-        return ((10 - (sum % 10)) % 10) + "";
-    }
-
-    public static boolean isLuhnCorrect(String number) {
-        return getCheckSumFor(number.substring(0, number.length() - 1))
-                .equals(number.substring(number.length() - 1));
     }
 }

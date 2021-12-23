@@ -2,20 +2,18 @@ package banking.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CliParser {
 
     private final Map<String, String> argValues;
-    private String[] args;
 
     public CliParser(String[] arguments) {
         argValues = new HashMap<>();
         parse(arguments);
     }
 
-    private void parse(String[] arguments) {
-        this.args = arguments;
-
+    private void parse(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("-")) {
                 argValues.put(args[i], args[i + 1]);
@@ -23,11 +21,7 @@ public class CliParser {
         }
     }
 
-    public String optionOf(String arg) {
-        return argValues.get(arg);
-    }
-
-    public String optionOrDefault(String arg, String defaultValue) {
-        return argValues.getOrDefault(arg, defaultValue);
+    public Optional<String> optionOf(String arg) {
+        return Optional.ofNullable(argValues.get(arg));
     }
 }

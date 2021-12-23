@@ -1,4 +1,4 @@
 package banking.model;
 
-public record Account(Card card, int balance) {
+public record Account(int id, Card card, int balance) {
 }

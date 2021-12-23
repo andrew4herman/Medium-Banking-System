@@ -1,67 +1,69 @@
 package banking;
 
-import banking.database.DatabaseController;
+import banking.database.AccountDao;
 import banking.model.Account;
 import banking.model.Card;
 import banking.util.CardGenerator;
+import banking.util.CardValidator;
+
+import java.util.Optional;
 
 public class Bank {
 
-    private final DatabaseController database;
-    private static final String BINumber = "400000";
+    private final AccountDao accountDao;
+    private final CardValidator cardValidator;
+    private final CardGenerator cardGenerator;
 
-    public Bank(DatabaseController database) {
-        this.database = database;
+    public Bank(AccountDao accountDao, String BINumber) {
+        this.accountDao = accountDao;
+        this.cardValidator = new CardValidator();
+        this.cardGenerator = new CardGenerator(cardValidator, BINumber);
     }
 
-    public Account registerAccount() {
-        Account account;
+    public Card registerAccount() {
         Card card;
 
         do {
-            card = CardGenerator.generate(BINumber);
+            card = cardGenerator.generate();
         } while (exists(card.cardNumber()));
 
-        account = new Account(card, 0);
-        database.insertValues(card.cardNumber(), card.PIN());
-
-        return account;
+        accountDao.save(card);
+        return card;
     }
 
-    public Account signInAccount(String cardNumber, String PIN) {
-        for (Account account : database.getAll()) {
-            if (account.card().equals(new Card(cardNumber, PIN))) {
-                return account;
-            }
-        }
-
-        return null;
+    public Optional<Account> signIn(String cardNumber, String cardPIN) {
+        return accountDao.get(cardNumber, cardPIN);
     }
 
     public boolean exists(String cardNumber) {
-        for (Account account : database.getAll()) {
-            if (account.card().cardNumber().equals(cardNumber))
-                return true;
+        return accountDao.getAll().stream()
+                .anyMatch(acc -> acc.card().cardNumber().equals(cardNumber));
+    }
+
+    public void addIncome(String cardNumber, int income) {
+        accountDao.update(cardNumber, income);
+    }
+
+    public void doTransfer(String from, String to, int amount) {
+        addIncome(from, -amount);
+        addIncome(to, amount);
+    }
+
+    public void removeAccount(int id) {
+        accountDao.delete(id);
+    }
+
+    public void checkCardNumber(String cardNumber) throws Exception {
+        String errorMessage = "";
+
+        if (!cardValidator.isValidCard(cardNumber)) {
+            errorMessage = "Probably you made mistake in the card number. Please try again!";
+        } else if (!exists(cardNumber)) {
+            errorMessage = "Such a card does not exist.";
         }
 
-        return false;
-    }
-
-    public int getBalance(String cardNumber) {
-        return Integer.parseInt(database.getValue(cardNumber, "balance"));
-    }
-
-    public void addIncome(String cardNumber, int sum) {
-        sum += getBalance(cardNumber);
-        database.updateValue(cardNumber, "balance", sum);
-    }
-
-    public void doTransfer(String from, String to, int sum) {
-        addIncome(from, -sum);
-        addIncome(to, sum);
-    }
-
-    public void deleteUser(String cardNumber) {
-        database.deleteRow(cardNumber);
+        if (!errorMessage.isEmpty()) {
+            throw new Exception(errorMessage);
+        }
     }
 }

@@ -1,155 +1,196 @@
 package banking;
 
-import banking.database.DatabaseController;
 import banking.model.Account;
-import banking.util.CardGenerator;
+import banking.model.Card;
 
+import java.util.InputMismatchException;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class BankingSystem {
 
-    private Bank bank;
-    private Account currentUser;
-    private Scanner scanner;
+    private final Bank bank;
+    private final Scanner scanner;
+    private Account currentAccount;
+    private boolean loggedIn;
 
-    public BankingSystem(String dataFile) {
-        bank = new Bank(new DatabaseController(dataFile));
-        scanner = new Scanner(System.in);
+    public BankingSystem(Bank bank, Scanner scanner) {
+        this.bank = bank;
+        this.scanner = scanner;
     }
 
     public void start() {
-        int option;
+        String option;
 
         do {
             showMenu();
-            option = scanner.nextInt();
+            option = scanner.next();
 
-            if (currentUser == null) {
-                switch (option) {
-                    case 1:
-                        createAccountOption();
-                        break;
-                    case 2:
-                        logIntoOption();
-                        break;
-                }
+            processInput(option);
+            syncAccount();
+        } while (!"0".equals(option));
+    }
 
+    private void syncAccount() {
+        if (currentAccount != null) {
+            Optional<Account> account = bank.signIn(
+                    currentAccount.card().cardNumber(),
+                    currentAccount.card().PIN());
+
+            if (account.isPresent()) {
+                currentAccount = account.get();
             } else {
-                switch (option) {
-                    case 1:
-                        System.out.printf(
-                                "\nBalance: %d\n", currentUser.balance());
-                        break;
-                    case 2:
-                        addIncomeOption();
-                        break;
-                    case 3:
-                        doTransferOption();
-                        break;
-                    case 4:
-                        closeAccountOption();
-                        break;
-                    case 5:
-                        logOutOption();
-                        break;
-                }
+                logOut();
+                System.out.println("\nError, probably card PIN has been changed. Try to sign in again.");
             }
-        } while (option != 0);
-
-        System.out.println("Bye!");
-    }
-
-    private void showMenu() {
-        if (currentUser == null) {
-            System.out.println("\n1. Create an account");
-            System.out.println("2. Log into account");
-        } else {
-            System.out.println("\n1. Balance");
-            System.out.println("2. Add income");
-            System.out.println("3. Do transfer");
-            System.out.println("4. Close account");
-            System.out.println("5. Log out");
         }
-        System.out.println("0. Exit");
     }
 
-    private void createAccountOption() {
-        Account account = bank.registerAccount();
-
-        System.out.print("\nYour card has been created\n");
-        System.out.print("Your card number:\n");
-        System.out.printf("%s\n", account.card().cardNumber());
-        System.out.print("Your card PIN:\n");
-        System.out.printf("%s\n", account.card().PIN());
+    private void processInput(String input) {
+        if (loggedIn) {
+            processLoggedOption(input);
+        } else {
+            processBasicOption(input);
+        }
     }
 
-    private void logIntoOption() {
+    private void processLoggedOption(String option) {
+        switch (option) {
+            case "1" -> showBalanceOption();
+            case "2" -> addIncomeOption();
+            case "3" -> doTransferOption();
+            case "4" -> closeAccountOption();
+            case "5" -> logOutOption();
+            case "0" -> System.out.println("\nBye!\n");
+            default -> System.out.println("\nIncorrect option. Try again.");
+        }
+    }
+
+    private void logOutOption() {
+        logOut();
+        System.out.println("\nYou have successfully logged out!");
+    }
+
+    private void closeAccountOption() {
+        bank.removeAccount(currentAccount.id());
+        logOut();
+
+        System.out.println("\nThe account has been closed!");
+    }
+
+    private void doTransferOption() {
+        System.out.println("\nTransfer");
+        System.out.println("Enter card number:");
+
+        try {
+            String receiver = scanner.next();
+            if (receiver.equals(currentAccount.card().cardNumber())) {
+                throw new Exception("You can't transfer money to the same account!");
+            }
+            bank.checkCardNumber(receiver);
+
+            System.out.println("Enter how much money you want to transfer:");
+            int moneyToTransfer = scanner.nextInt();
+
+            if (moneyToTransfer < 1) {
+                throw new IllegalArgumentException();
+            } else if (moneyToTransfer > currentAccount.balance()) {
+                throw new Exception("Not enough money!");
+            } else {
+                bank.doTransfer(currentAccount.card().cardNumber(),
+                        receiver,
+                        moneyToTransfer);
+
+                System.out.println("Success!");
+            }
+        } catch (InputMismatchException | IllegalArgumentException e) {
+            System.out.println("Invalid input. Please try again.");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void addIncomeOption() {
+        System.out.println("\nEnter income:");
+
+        try {
+            int income = scanner.nextInt();
+            if (income < 1) {
+                throw new Exception();
+            }
+
+            bank.addIncome(currentAccount.card().cardNumber(), income);
+            System.out.println("Income was added!");
+        } catch (Exception ex) {
+            System.out.println("Incorrect input. Enter a number greater than zero!");
+        }
+    }
+
+    private void showBalanceOption() {
+        System.out.println("Balance: " + currentAccount.balance());
+    }
+
+    private void processBasicOption(String option) {
+        switch (option) {
+            case "1" -> createAccountOption();
+            case "2" -> logInOption();
+            case "0" -> System.out.println("\nBye!\n");
+            default -> System.out.println("Incorrect option. Try again.");
+        }
+    }
+
+    private void logInOption() {
         System.out.println("Enter your card number:");
         String cardNumber = scanner.next();
 
         System.out.println("Enter your PIN:");
         String PIN = scanner.next();
 
-        currentUser = bank.signInAccount(cardNumber, PIN);
-        if (currentUser != null)
+        Optional<Account> account = bank.signIn(cardNumber, PIN);
+        if (account.isPresent()) {
+            logIn(account.get());
             System.out.println("You have successfully logged in!");
-        else
+        } else {
             System.out.println("Wrong card number or PIN!");
+        }
     }
 
-    private void addIncomeOption() {
-        System.out.print("\nEnter income:\n");
-        int income = scanner.nextInt();
-
-        bank.addIncome(currentUser.card().cardNumber(), income);
-        currentUser = new Account(
-                currentUser.card(),
-                bank.getBalance(currentUser.card().cardNumber())
-        );
-
-        System.out.print("Income was added!\n");
+    private void createAccountOption() {
+        Card card = bank.registerAccount();
+        System.out.printf("""
+                %nYour account has been created
+                Your card number:
+                %s
+                Your card PIN:
+                %s%n""", card.cardNumber(), card.PIN());
     }
 
-    private void doTransferOption() {
-        System.out.print("\nTransfer\n");
-        System.out.print("Enter card number:\n");
-        String receiverCardNumber = scanner.next();
 
-        if (CardGenerator.isLuhnCorrect(receiverCardNumber)) {
-            if (!receiverCardNumber.equals(currentUser.card().cardNumber())) {
-                if (bank.exists(receiverCardNumber)) {
-
-                    System.out.println("Enter how much money you want to transfer:");
-                    int money = scanner.nextInt();
-
-                    if (money <= currentUser.balance()) {
-
-                        bank.doTransfer(currentUser.card().cardNumber(), receiverCardNumber, money);
-                        currentUser = new Account(
-                                currentUser.card(),
-                                bank.getBalance(currentUser.card().cardNumber())
-                        );
-                        System.out.print("Success!\n");
-
-                    } else System.out.print("Not enough money!\n");
-                } else
-                    System.out.println("Such a card does not exist.\\n");
-            } else
-                System.out.println("You can't transfer money to the same account!\\n");
-        } else
-            System.out.println("Probably you made mistake in the card number. Please try again!\\n");
+    private void showMenu() {
+        if (!loggedIn) {
+            System.out.printf("""
+                    %n1. Create an account
+                    2. Log into account
+                    """);
+        } else {
+            System.out.printf("""
+                    %n1. Balance
+                    2. Add income
+                    3. Do transfer
+                    4. Close account
+                    5. Log out
+                    """);
+        }
+        System.out.println("0. Exit\n");
     }
 
-    private void closeAccountOption() {
-        bank.deleteUser(currentUser.card().cardNumber());
-        currentUser = null;
-
-        System.out.println("The account has been closed!");
+    private void logIn(Account account) {
+        this.currentAccount = account;
+        loggedIn = true;
     }
 
-    private void logOutOption() {
-        currentUser = null;
-        System.out.println("You have successfully logged out!");
+    private void logOut() {
+        this.currentAccount = null;
+        loggedIn = false;
     }
-
 }
