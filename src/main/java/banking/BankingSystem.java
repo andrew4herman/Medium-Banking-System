@@ -37,12 +37,13 @@ public class BankingSystem {
                     currentAccount.card().cardNumber(),
                     currentAccount.card().PIN());
 
-            if (account.isPresent()) {
-                currentAccount = account.get();
-            } else {
-                logOut();
-                System.out.println("\nError, probably card PIN has been changed. Try to sign in again.");
-            }
+            account.ifPresentOrElse(
+                    this::setCurrentAccount,
+                    () -> {
+                        logOut();
+                        System.out.println("\nError, probably card PIN has been changed. Try to sign in again.");
+                    }
+            );
         }
     }
 
@@ -185,12 +186,16 @@ public class BankingSystem {
     }
 
     private void logIn(Account account) {
-        this.currentAccount = account;
+        setCurrentAccount(account);
         loggedIn = true;
     }
 
     private void logOut() {
-        this.currentAccount = null;
+        setCurrentAccount(null);
         loggedIn = false;
+    }
+
+    private void setCurrentAccount(Account account) {
+        this.currentAccount = account;
     }
 }
