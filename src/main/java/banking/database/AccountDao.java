@@ -3,7 +3,10 @@ package banking.database;
 import banking.model.Account;
 import banking.model.Card;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +20,8 @@ public class AccountDao {
     }
 
     public Optional<Account> get(String cardNumber, String cardPIN) {
-        try (Connection connection = dbManager.createConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     AccountQuery.GET.getQuery()
-             )) {
+        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
+                AccountQuery.GET.getQuery())) {
             statement.setString(1, cardNumber);
             statement.setString(2, cardPIN);
 
@@ -41,8 +42,7 @@ public class AccountDao {
     public List<Account> getAll() {
         List<Account> result = new ArrayList<>();
 
-        try (Connection connection = dbManager.createConnection();
-             Statement statement = connection.createStatement()) {
+        try (Statement statement = dbManager.getConnection().createStatement()) {
             ResultSet rs = statement.executeQuery(AccountQuery.GET_ALL.getQuery());
 
             while (rs.next()) {
@@ -60,10 +60,8 @@ public class AccountDao {
     }
 
     public void save(Card card) {
-        try (Connection connection = dbManager.createConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     AccountQuery.SAVE.getQuery()
-             )) {
+        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
+                AccountQuery.SAVE.getQuery())) {
             statement.setString(1, card.cardNumber());
             statement.setString(2, card.PIN());
 
@@ -74,10 +72,8 @@ public class AccountDao {
     }
 
     public void update(String cardNumber, int income) {
-        try (Connection connection = dbManager.createConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     AccountQuery.UPDATE_BALANCE.getQuery()
-             )) {
+        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
+                AccountQuery.UPDATE_BALANCE.getQuery())) {
             statement.setInt(1, income);
             statement.setString(2, cardNumber);
 
@@ -88,10 +84,8 @@ public class AccountDao {
     }
 
     public void delete(int id) {
-        try (Connection connection = dbManager.createConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     AccountQuery.DELETE.getQuery()
-             )) {
+        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
+                AccountQuery.DELETE.getQuery())) {
             statement.setInt(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {

@@ -19,6 +19,7 @@ public class Main {
             BankingSystem system = new BankingSystem(bank, new Scanner(System.in));
 
             system.start();
+            dbManager.closeConnection();
         } else {
             throw new IllegalArgumentException("Incorrect option for -fileName");
         }
