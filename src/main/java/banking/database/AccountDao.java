@@ -13,6 +13,12 @@ import java.util.Optional;
 
 public class AccountDao {
 
+    public static final String SQL_GET = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
+    public static final String SQL_GET_ALL = "SELECT * FROM account;";
+    public static final String SQL_SAVE = "INSERT INTO account(cardNumber, cardPin) VALUES(?, ?);";
+    public static final String SQL_UPDATE_BALANCE = "UPDATE account SET balance = balance + ? WHERE cardNumber = ?";
+    public static final String SQL_DELETE = "DELETE FROM account WHERE id = ?;";
+
     private final DBManager dbManager;
 
     public AccountDao(DBManager dbManager) {
@@ -20,8 +26,8 @@ public class AccountDao {
     }
 
     public Optional<Account> get(String cardNumber, String cardPIN) {
-        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
-                AccountQuery.GET.getQuery())) {
+        try (PreparedStatement statement =
+                     dbManager.getConnection().prepareStatement(SQL_GET)) {
             statement.setString(1, cardNumber);
             statement.setString(2, cardPIN);
 
@@ -43,7 +49,7 @@ public class AccountDao {
         List<Account> result = new ArrayList<>();
 
         try (Statement statement = dbManager.getConnection().createStatement()) {
-            ResultSet rs = statement.executeQuery(AccountQuery.GET_ALL.getQuery());
+            ResultSet rs = statement.executeQuery(SQL_GET_ALL);
 
             while (rs.next()) {
                 result.add(new Account(
@@ -60,8 +66,8 @@ public class AccountDao {
     }
 
     public void save(Card card) {
-        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
-                AccountQuery.SAVE.getQuery())) {
+        try (PreparedStatement statement =
+                     dbManager.getConnection().prepareStatement(SQL_SAVE)) {
             statement.setString(1, card.cardNumber());
             statement.setString(2, card.PIN());
 
@@ -72,8 +78,8 @@ public class AccountDao {
     }
 
     public void update(String cardNumber, int income) {
-        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
-                AccountQuery.UPDATE_BALANCE.getQuery())) {
+        try (PreparedStatement statement =
+                     dbManager.getConnection().prepareStatement(SQL_UPDATE_BALANCE)) {
             statement.setInt(1, income);
             statement.setString(2, cardNumber);
 
@@ -84,8 +90,8 @@ public class AccountDao {
     }
 
     public void delete(int id) {
-        try (PreparedStatement statement = dbManager.getConnection().prepareStatement(
-                AccountQuery.DELETE.getQuery())) {
+        try (PreparedStatement statement =
+                     dbManager.getConnection().prepareStatement(SQL_DELETE)) {
             statement.setInt(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {

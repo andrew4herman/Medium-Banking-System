@@ -8,6 +8,15 @@ import java.sql.Statement;
 
 public class DBManager {
 
+    public static final String SQL_CREATE_TABLE = """
+            CREATE TABLE IF NOT EXISTS account(
+                id INTEGER PRIMARY KEY,
+                cardNumber TEXT UNIQUE,
+                cardPIN TEXT,
+                balance INTEGER DEFAULT 0
+            );
+            """;
+
     private final SQLiteDataSource dataSource;
     private Connection connection;
 
@@ -15,12 +24,12 @@ public class DBManager {
         dataSource = new SQLiteDataSource();
         dataSource.setUrl("jdbc:sqlite:" + fileName);
         tryToCreateConnection();
-        executeQuery(AccountQuery.CREATE_TABLE.getQuery());
+        executeQuery();
     }
 
-    private void executeQuery(String sqlQuery) {
+    private void executeQuery() {
         try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate(sqlQuery);
+            statement.executeUpdate(SQL_CREATE_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
         }
