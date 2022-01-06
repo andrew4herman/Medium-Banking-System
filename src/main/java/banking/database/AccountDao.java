@@ -6,15 +6,12 @@ import banking.model.Card;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class AccountDao {
 
-    public static final String SQL_GET = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
-    public static final String SQL_GET_ALL = "SELECT * FROM account;";
+    public static final String SQL_GET = "SELECT * FROM account WHERE cardNumber = ?;";
+    public static final String SQL_GET_IF_CORRECT = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
     public static final String SQL_SAVE = "INSERT INTO account(cardNumber, cardPin) VALUES(?, ?);";
     public static final String SQL_UPDATE_BALANCE = "UPDATE account SET balance = balance + ? WHERE cardNumber = ?";
     public static final String SQL_DELETE = "DELETE FROM account WHERE id = ?;";
@@ -25,11 +22,10 @@ public class AccountDao {
         this.dbManager = dbManager;
     }
 
-    public Optional<Account> get(String cardNumber, String cardPIN) {
+    public Optional<Account> get(String cardNumber) {
         try (PreparedStatement statement =
                      dbManager.getConnection().prepareStatement(SQL_GET)) {
             statement.setString(1, cardNumber);
-            statement.setString(2, cardPIN);
 
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
@@ -45,24 +41,24 @@ public class AccountDao {
         return Optional.empty();
     }
 
-    public List<Account> getAll() throws Exception{
-        try (Statement statement = dbManager.getConnection().createStatement()) {
-            List<Account> result = new ArrayList<>();
-            ResultSet rs = statement.executeQuery(SQL_GET_ALL);
+    public Optional<Account> get(String cardNumber, String cardPIN) {
+        try (PreparedStatement statement =
+                     dbManager.getConnection().prepareStatement(SQL_GET_IF_CORRECT)) {
+            statement.setString(1, cardNumber);
+            statement.setString(2, cardPIN);
 
-            while (rs.next()) {
-                result.add(new Account(
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return Optional.of(new Account(
                         rs.getInt("id"),
                         new Card(rs.getString("cardNumber"), rs.getString("cardPIN")),
-                        rs.getInt("balance"))
-                );
+                        rs.getInt("balance")
+                ));
             }
-
-            return result;
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new Exception("Cannot take info from database!");
         }
+        return Optional.empty();
     }
 
     public void save(Card card) {

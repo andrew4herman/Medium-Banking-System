@@ -159,19 +159,13 @@ public class BankingSystem {
     }
 
     private void createAccountOption() {
-        Card card;
-        try {
-            card = bank.registerAccount();
-            System.out.printf("""
+        Card card = bank.registerAccount();
+        System.out.printf("""
                 %nYour account has been created
                 Your card number:
                 %s
                 Your card PIN:
                 %s%n""", card.cardNumber(), card.PIN());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
     }
 
     private void logInOption() {
