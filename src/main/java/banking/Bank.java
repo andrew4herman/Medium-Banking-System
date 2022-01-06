@@ -20,7 +20,7 @@ public class Bank {
         this.cardGenerator = new CardGenerator(cardValidator, BINumber);
     }
 
-    public Card registerAccount() {
+    public Card registerAccount() throws Exception {
         Card card;
 
         do {
@@ -35,7 +35,7 @@ public class Bank {
         return accountDao.get(cardNumber, cardPIN);
     }
 
-    public boolean exists(String cardNumber) {
+    public boolean exists(String cardNumber) throws Exception {
         return accountDao.getAll().stream()
                 .anyMatch(acc -> acc.card().cardNumber().equals(cardNumber));
     }

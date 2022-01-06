@@ -45,10 +45,9 @@ public class AccountDao {
         return Optional.empty();
     }
 
-    public List<Account> getAll() {
-        List<Account> result = new ArrayList<>();
-
+    public List<Account> getAll() throws Exception{
         try (Statement statement = dbManager.getConnection().createStatement()) {
+            List<Account> result = new ArrayList<>();
             ResultSet rs = statement.executeQuery(SQL_GET_ALL);
 
             while (rs.next()) {
@@ -58,11 +57,12 @@ public class AccountDao {
                         rs.getInt("balance"))
                 );
             }
+
+            return result;
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new Exception("Cannot take info from database!");
         }
-
-        return result;
     }
 
     public void save(Card card) {
