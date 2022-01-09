@@ -160,12 +160,13 @@ public class BankingSystem {
         String PIN = scanner.next();
 
         Optional<Account> account = bank.signIn(cardNumber, PIN);
-        if (account.isPresent()) {
-            logIn(account.get());
-            System.out.println("You have successfully logged in!");
-        } else {
-            System.out.println("Wrong card number or PIN!");
-        }
+        account.ifPresentOrElse(
+                acc -> {
+                    logIn(acc);
+                    System.out.println("You have successfully logged in!");
+                },
+                () -> System.out.println("Wrong card number or PIN!")
+        );
     }
 
     private boolean canTransferTo(String receiver) {
