@@ -121,7 +121,7 @@ public class BankingSystem {
         try {
             String receiver = scanner.next();
             if (receiver.equals(currentAccount.card().cardNumber())) {
-                throw new Exception("You can't transfer money to the same account!");
+                throw new IllegalArgumentException("You can't transfer money to the same account!");
             }
             bank.checkCardNumber(receiver);
 
@@ -129,9 +129,9 @@ public class BankingSystem {
             int moneyToTransfer = scanner.nextInt();
 
             if (moneyToTransfer < 1) {
-                throw new IllegalArgumentException();
+                throw new InputMismatchException();
             } else if (moneyToTransfer > currentAccount.balance()) {
-                throw new Exception("Not enough money!");
+                throw new IllegalArgumentException("Not enough money!");
             } else {
                 bank.doTransfer(currentAccount.card().cardNumber(),
                         receiver,
@@ -139,9 +139,9 @@ public class BankingSystem {
 
                 System.out.println("Success!");
             }
-        } catch (InputMismatchException | IllegalArgumentException e) {
+        } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please try again.");
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }

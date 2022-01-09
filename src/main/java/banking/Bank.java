@@ -53,7 +53,7 @@ public class Bank {
         accountDao.delete(id);
     }
 
-    public void checkCardNumber(String cardNumber) throws Exception {
+    public void checkCardNumber(String cardNumber) {
         String errorMessage = "";
 
         if (!cardValidator.isValidCard(cardNumber)) {
@@ -63,7 +63,7 @@ public class Bank {
         }
 
         if (!errorMessage.isEmpty()) {
-            throw new Exception(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 }
