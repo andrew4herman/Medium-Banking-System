@@ -15,10 +15,7 @@ public class CardGenerator {
     }
 
     public Card generate() {
-        return new Card(
-                createCardNumber(),
-                createPIN()
-        );
+        return new Card(createCardNumber(), createPIN());
     }
 
     private String createCardNumber() {
