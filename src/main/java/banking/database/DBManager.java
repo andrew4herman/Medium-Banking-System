@@ -24,10 +24,10 @@ public class DBManager {
         dataSource = new SQLiteDataSource();
         dataSource.setUrl("jdbc:sqlite:" + fileName);
         tryToCreateConnection();
-        executeQuery();
+        createTable();
     }
 
-    private void executeQuery() {
+    private void createTable() {
         try (Statement statement = getConnection().createStatement()) {
             statement.executeUpdate(SQL_CREATE_TABLE);
         } catch (SQLException e) {
