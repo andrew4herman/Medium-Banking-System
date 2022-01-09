@@ -31,7 +31,7 @@ public class DBManager {
         try (Statement statement = getConnection().createStatement()) {
             statement.executeUpdate(SQL_CREATE_TABLE);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot create table 'account'", e);
         }
     }
 
@@ -40,7 +40,7 @@ public class DBManager {
             this.connection = dataSource.getConnection();
             this.connection.setAutoCommit(false);
         } catch (SQLException e) {
-            System.err.println("Cannot create a connection with database!");
+            throw new RuntimeException("Cannot create a connection with database!", e);
         }
     }
 
@@ -53,7 +53,7 @@ public class DBManager {
             try {
                 this.connection.close();
             } catch (SQLException e) {
-                System.err.println("Cannot close a connection with database!");
+                throw new RuntimeException("Cannot close a connection with database!", e);
             }
         }
     }

@@ -40,7 +40,7 @@ public class AccountDao {
 
             dbManager.getConnection().commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot get account with card number " + cardNumber, e);
         }
         return Optional.empty();
     }
@@ -62,7 +62,7 @@ public class AccountDao {
 
             dbManager.getConnection().commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot get account with card number " + cardNumber, e);
         }
         return Optional.empty();
     }
@@ -76,7 +76,7 @@ public class AccountDao {
             statement.executeUpdate();
             dbManager.getConnection().commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot save card " + card.cardNumber(), e);
         }
     }
 
@@ -103,7 +103,7 @@ public class AccountDao {
             statement.executeUpdate();
             dbManager.getConnection().commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot delete account with id " + id, e);
         }
     }
 
@@ -119,7 +119,7 @@ public class AccountDao {
                 connection.rollback(savepoint);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot make transfer from %s to %s".formatted(from, to), e);
         }
     }
 }
