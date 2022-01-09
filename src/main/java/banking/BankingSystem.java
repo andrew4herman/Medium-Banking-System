@@ -59,9 +59,7 @@ public class BankingSystem {
 
     private void syncAccount() {
         if (currentAccount != null) {
-            Optional<Account> account = bank.signIn(
-                    currentAccount.card().cardNumber(),
-                    currentAccount.card().PIN());
+            Optional<Account> account = bank.signIn(currentAccount.card().cardNumber(), currentAccount.card().PIN());
 
             account.ifPresentOrElse(
                     this::setCurrentAccount,
