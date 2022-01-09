@@ -3,9 +3,11 @@ package banking.database;
 import banking.model.Account;
 import banking.model.Card;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.Optional;
 
 public class AccountDao {
@@ -35,6 +37,8 @@ public class AccountDao {
                         rs.getInt("balance")
                 ));
             }
+
+            dbManager.getConnection().commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -55,6 +59,8 @@ public class AccountDao {
                         rs.getInt("balance")
                 ));
             }
+
+            dbManager.getConnection().commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,28 +74,50 @@ public class AccountDao {
             statement.setString(2, card.PIN());
 
             statement.executeUpdate();
+            dbManager.getConnection().commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void update(String cardNumber, int income) {
+    public boolean update(String cardNumber, int income) {
         try (PreparedStatement statement =
                      dbManager.getConnection().prepareStatement(SQL_UPDATE_BALANCE)) {
             statement.setInt(1, income);
             statement.setString(2, cardNumber);
 
             statement.executeUpdate();
+            dbManager.getConnection().commit();
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public void delete(int id) {
         try (PreparedStatement statement =
                      dbManager.getConnection().prepareStatement(SQL_DELETE)) {
             statement.setInt(1, id);
+
             statement.executeUpdate();
+            dbManager.getConnection().commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void executeTransferTransaction(String from, String to, int money) {
+        try {
+            Connection connection = dbManager.getConnection();
+            Savepoint savepoint = connection.setSavepoint();
+
+            boolean withdrawn = update(from, -money);
+            boolean sent = update(to, money);
+
+            if (!withdrawn || !sent) {
+                connection.rollback(savepoint);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

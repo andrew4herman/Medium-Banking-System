@@ -38,6 +38,7 @@ public class DBManager {
     private void tryToCreateConnection() {
         try {
             this.connection = dataSource.getConnection();
+            this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             System.err.println("Cannot create a connection with database!");
         }

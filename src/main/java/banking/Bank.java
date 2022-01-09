@@ -40,12 +40,13 @@ public class Bank {
     }
 
     public void addIncome(String cardNumber, int income) {
-        accountDao.update(cardNumber, income);
+        if (!accountDao.update(cardNumber, income)) {
+            System.out.println("Cannot update balance on that card: " + cardNumber);
+        }
     }
 
     public void doTransfer(String from, String to, int amount) {
-        addIncome(from, -amount);
-        addIncome(to, amount);
+        accountDao.executeTransferTransaction(from, to, amount);
     }
 
     public void removeAccount(int id) {
