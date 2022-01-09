@@ -3,7 +3,6 @@ package banking;
 import banking.model.Account;
 import banking.model.Card;
 
-import java.util.InputMismatchException;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -115,32 +114,19 @@ public class BankingSystem {
     private void doTransferOption() {
         System.out.println("\nTransfer");
         System.out.println("Enter card number:");
+        String receiver = scanner.next();
 
-        try {
-            String receiver = scanner.next();
-            if (receiver.equals(currentAccount.card().cardNumber())) {
-                throw new IllegalArgumentException("You can't transfer money to the same account!");
-            }
-            bank.checkCardNumber(receiver);
-
+        if (canTransferTo(receiver)) {
             System.out.println("Enter how much money you want to transfer:");
             int moneyToTransfer = scanner.nextInt();
 
-            if (moneyToTransfer < 1) {
-                throw new InputMismatchException();
-            } else if (moneyToTransfer > currentAccount.balance()) {
-                throw new IllegalArgumentException("Not enough money!");
-            } else {
+            if (canSend(moneyToTransfer)) {
                 bank.doTransfer(currentAccount.card().cardNumber(),
                         receiver,
                         moneyToTransfer);
 
                 System.out.println("Success!");
             }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please try again.");
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -179,6 +165,34 @@ public class BankingSystem {
             System.out.println("You have successfully logged in!");
         } else {
             System.out.println("Wrong card number or PIN!");
+        }
+    }
+
+    private boolean canTransferTo(String receiver) {
+        try {
+            if (receiver.equals(currentAccount.card().cardNumber())) {
+                throw new IllegalArgumentException("You can't transfer money to the same account!");
+            }
+            bank.checkCardNumber(receiver);
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean canSend(int moneyToTransfer) {
+        try {
+            if (moneyToTransfer < 1) {
+                throw new IllegalArgumentException("Invalid input. Please try again.");
+            } else if (moneyToTransfer > currentAccount.balance()) {
+                throw new IllegalArgumentException("Not enough money!");
+            } else {
+                return true;
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return false;
         }
     }
 
