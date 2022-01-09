@@ -12,9 +12,9 @@ import java.util.Optional;
 
 public class AccountDao {
 
-    public static final String SQL_GET = "SELECT * FROM account WHERE cardNumber = ?;";
-    public static final String SQL_GET_IF_CORRECT = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
-    public static final String SQL_SAVE = "INSERT INTO account(cardNumber, cardPin) VALUES(?, ?);";
+    public static final String GET_BY_CARD_NUMBER = "SELECT * FROM account WHERE cardNumber = ?;";
+    public static final String GET_BY_CREDENTIALS = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
+    public static final String INSERT_CARD = "INSERT INTO account(cardNumber, cardPin) VALUES(?, ?);";
     public static final String SQL_UPDATE_BALANCE = "UPDATE account SET balance = balance + ? WHERE cardNumber = ?";
     public static final String SQL_DELETE = "DELETE FROM account WHERE id = ?;";
 
@@ -26,7 +26,7 @@ public class AccountDao {
 
     public Optional<Account> get(String cardNumber) {
         try (PreparedStatement statement =
-                     dbManager.getConnection().prepareStatement(SQL_GET)) {
+                     dbManager.getConnection().prepareStatement(GET_BY_CARD_NUMBER)) {
             statement.setString(1, cardNumber);
 
             ResultSet rs = statement.executeQuery();
@@ -47,7 +47,7 @@ public class AccountDao {
 
     public Optional<Account> get(String cardNumber, String cardPIN) {
         try (PreparedStatement statement =
-                     dbManager.getConnection().prepareStatement(SQL_GET_IF_CORRECT)) {
+                     dbManager.getConnection().prepareStatement(GET_BY_CREDENTIALS)) {
             statement.setString(1, cardNumber);
             statement.setString(2, cardPIN);
 
@@ -69,7 +69,7 @@ public class AccountDao {
 
     public void save(Card card) {
         try (PreparedStatement statement =
-                     dbManager.getConnection().prepareStatement(SQL_SAVE)) {
+                     dbManager.getConnection().prepareStatement(INSERT_CARD)) {
             statement.setString(1, card.cardNumber());
             statement.setString(2, card.PIN());
 
