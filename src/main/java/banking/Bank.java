@@ -40,9 +40,7 @@ public class Bank {
     }
 
     public void addIncome(String cardNumber, int income) {
-        if (!accountDao.update(cardNumber, income)) {
-            System.out.println("Cannot update balance on that card: " + cardNumber);
-        }
+        accountDao.update(cardNumber, income);
     }
 
     public void doTransfer(String from, String to, int amount) {

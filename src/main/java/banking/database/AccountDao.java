@@ -80,7 +80,7 @@ public class AccountDao {
         }
     }
 
-    public boolean update(String cardNumber, int income) {
+    public void update(String cardNumber, int income) {
         try (PreparedStatement statement =
                      dbManager.getConnection().prepareStatement(SQL_UPDATE_BALANCE)) {
             statement.setInt(1, income);
@@ -89,10 +89,8 @@ public class AccountDao {
             statement.executeUpdate();
             dbManager.getConnection().commit();
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("Cannot add money to card " + cardNumber, e);
         }
-        return true;
     }
 
     public void delete(int id) {
@@ -108,17 +106,25 @@ public class AccountDao {
     }
 
     public void executeTransferTransaction(String from, String to, int money) {
+        Connection connection = null;
+        Savepoint savepoint = null;
+
         try {
-            Connection connection = dbManager.getConnection();
-            Savepoint savepoint = connection.setSavepoint();
+            connection = dbManager.getConnection();
+            savepoint = connection.setSavepoint();
 
-            boolean withdrawn = update(from, -money);
-            boolean sent = update(to, money);
+            update(from, -money);
+            update(to, money);
 
-            if (!withdrawn || !sent) {
-                connection.rollback(savepoint);
-            }
+            connection.commit();
         } catch (SQLException e) {
+            if (savepoint != null) {
+                try {
+                    connection.rollback(savepoint);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             throw new RuntimeException("Cannot make transfer from %s to %s".formatted(from, to), e);
         }
     }
