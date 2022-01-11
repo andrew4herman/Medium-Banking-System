@@ -30,6 +30,7 @@ public class DBManager {
     private void createTable() {
         try (Statement statement = getConnection().createStatement()) {
             statement.executeUpdate(SQL_CREATE_TABLE);
+            getConnection().commit();
         } catch (SQLException e) {
             throw new RuntimeException("Cannot create table 'account'", e);
         }
