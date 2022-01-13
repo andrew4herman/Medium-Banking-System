@@ -29,7 +29,7 @@ public class CardGenerator {
         return generateNum(4);
     }
 
-    private static String generateNum(int size) {
+    private String generateNum(int size) {
         StringBuilder number = new StringBuilder();
         for (int i = 0; i < size; i++) {
             number.append((new Random()).nextInt(10));

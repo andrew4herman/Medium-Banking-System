@@ -56,8 +56,7 @@ public class AccountDao {
                 return Optional.of(new Account(
                         rs.getInt("id"),
                         new Card(rs.getString("cardNumber"), rs.getString("cardPIN")),
-                        rs.getInt("balance")
-                ));
+                        rs.getInt("balance")));
             }
 
             dbManager.getConnection().commit();
@@ -106,26 +105,20 @@ public class AccountDao {
     }
 
     public void executeTransferTransaction(String from, String to, int money) {
-        Connection connection = null;
-        Savepoint savepoint = null;
-
         try {
-            connection = dbManager.getConnection();
-            savepoint = connection.setSavepoint();
+            Connection connection = dbManager.getConnection();
+            Savepoint savepoint = connection.setSavepoint();
 
-            update(from, -money);
-            update(to, money);
-
-            connection.commit();
-        } catch (SQLException e) {
-            if (savepoint != null) {
-                try {
-                    connection.rollback(savepoint);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
+            try {
+                update(from, -money);
+                update(to, money);
+                connection.commit();
+            } catch (RuntimeException | SQLException e) {
+                System.out.println("Cannot transfer money. Trying to rollback...");
+                connection.rollback(savepoint);
             }
-            throw new RuntimeException("Cannot make transfer from %s to %s".formatted(from, to), e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Cannot rollback to the last savepoint!", e);
         }
     }
 }

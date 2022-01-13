@@ -17,6 +17,7 @@ public class CardValidator {
 
         return String.valueOf((10 - (sum % 10)) % 10).charAt(0);
     }
+
     public boolean isValidCard(String number) {
         return number.length() == 16 &&
                 number.charAt(15) == getCheckSumFor(number.substring(0, number.length() - 1));

@@ -27,12 +27,13 @@ public class DBManager {
         createTable();
     }
 
-    private void createTable() {
-        try (Statement statement = getConnection().createStatement()) {
-            statement.executeUpdate(SQL_CREATE_TABLE);
-            getConnection().commit();
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot create table 'account'", e);
+    public void closeConnection() {
+        if (this.connection != null) {
+            try {
+                this.connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException("Cannot close a connection with database!", e);
+            }
         }
     }
 
@@ -45,17 +46,16 @@ public class DBManager {
         }
     }
 
-    public Connection getConnection() {
-        return this.connection;
+    private void createTable() {
+        try (Statement statement = getConnection().createStatement()) {
+            statement.executeUpdate(SQL_CREATE_TABLE);
+            getConnection().commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Cannot create table 'account'", e);
+        }
     }
 
-    public void closeConnection() {
-        if (this.connection != null) {
-            try {
-                this.connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException("Cannot close a connection with database!", e);
-            }
-        }
+    public Connection getConnection() {
+        return this.connection;
     }
 }
