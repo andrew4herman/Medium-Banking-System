@@ -14,10 +14,10 @@ public class Bank {
     private final CardValidator cardValidator;
     private final CardGenerator cardGenerator;
 
-    public Bank(AccountDao accountDao, String BINumber) {
+    public Bank(AccountDao accountDao, CardValidator cardValidator, CardGenerator cardGenerator) {
         this.accountDao = accountDao;
-        this.cardValidator = new CardValidator();
-        this.cardGenerator = new CardGenerator(cardValidator, BINumber);
+        this.cardValidator = cardValidator;
+        this.cardGenerator = cardGenerator;
     }
 
     public Card registerAccount() {
