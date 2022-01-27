@@ -12,8 +12,10 @@ import java.util.Optional;
 
 public class AccountDao {
 
-    public static final String GET_BY_CARD_NUMBER = "SELECT * FROM account WHERE cardNumber = ?;";
-    public static final String GET_BY_CREDENTIALS = "SELECT * FROM account WHERE cardNumber = ? AND cardPin = ?;";
+    public static final String GET_BY_CARD_NUMBER =
+            "SELECT (id, cardNumber, cardPIN, balance) FROM account WHERE cardNumber = ?;";
+    public static final String GET_BY_CREDENTIALS =
+            "SELECT (id, cardNumber, cardPIN, balance) FROM account WHERE cardNumber = ? AND cardPin = ?;";
     public static final String INSERT_CARD = "INSERT INTO account(cardNumber, cardPin) VALUES(?, ?);";
     public static final String SQL_UPDATE_BALANCE = "UPDATE account SET balance = balance + ? WHERE cardNumber = ?";
     public static final String SQL_DELETE = "DELETE FROM account WHERE id = ?;";
