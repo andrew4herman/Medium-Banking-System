@@ -8,10 +8,15 @@ public class CardGenerator {
 
     private final CardValidator cardValidator;
     private final String BINumber;
+    private final Random random;
 
-    public CardGenerator(CardValidator cardValidator, String BINumber) {
+    private static final int PIN_SIZE = 4;
+    private static final int ACC_IDENTIFIER_SIZE = 9;
+
+    public CardGenerator(CardValidator cardValidator, String BINumber, Random random) {
         this.cardValidator = cardValidator;
         this.BINumber = BINumber;
+        this.random = random;
     }
 
     public Card generate() {
@@ -19,20 +24,22 @@ public class CardGenerator {
     }
 
     private String createCardNumber() {
-        String accIdentifier = generateNum(9);
+        String accIdentifier = generateNum(ACC_IDENTIFIER_SIZE);
         String checksum = String.valueOf(cardValidator.getCheckSumFor(BINumber + accIdentifier));
 
         return (BINumber + accIdentifier + checksum);
     }
 
     private String createPIN() {
-        return generateNum(4);
+        return generateNum(PIN_SIZE);
     }
 
     private String generateNum(int size) {
         StringBuilder number = new StringBuilder();
+        int randomBound = 10;
+
         for (int i = 0; i < size; i++) {
-            number.append((new Random()).nextInt(10));
+            number.append(random.nextInt(randomBound));
         }
         return number.toString();
     }

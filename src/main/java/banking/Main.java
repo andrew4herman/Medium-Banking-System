@@ -5,6 +5,8 @@ import banking.database.DBManager;
 import banking.util.CardGenerator;
 import banking.util.CardValidator;
 import banking.util.CliParser;
+
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -17,8 +19,9 @@ public class Main {
         DBManager dbManager = new DBManager(fileName);
         AccountDao accountDao = new AccountDao(dbManager);
 
+        Random random = new Random();
         CardValidator cardValidator = new CardValidator();
-        CardGenerator cardGenerator = new CardGenerator(cardValidator, BINumber);
+        CardGenerator cardGenerator = new CardGenerator(cardValidator, BINumber, random);
 
         Bank bank = new Bank(accountDao, cardValidator, cardGenerator);
         BankingSystem system = new BankingSystem(bank, new Scanner(System.in));
