@@ -20,6 +20,11 @@ public class AccountDao {
     public static final String SQL_UPDATE_BALANCE = "UPDATE account SET balance = balance + ? WHERE cardNumber = ?";
     public static final String SQL_DELETE = "DELETE FROM account WHERE id = ?;";
 
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_CARD_NUMBER = "cardNumber";
+    private static final String COLUMN_CARD_PIN = "cardPIN";
+    private static final String COLUMN_BALANCE = "balance";
+
     private final DBConnector dbConnector;
 
     public AccountDao(DBConnector dbConnector) {
@@ -34,9 +39,9 @@ public class AccountDao {
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return Optional.of(new Account(
-                        rs.getInt("id"),
-                        new Card(rs.getString("cardNumber"), rs.getString("cardPIN")),
-                        rs.getInt("balance")
+                        rs.getInt(COLUMN_ID),
+                        new Card(rs.getString(COLUMN_CARD_NUMBER), rs.getString(COLUMN_CARD_PIN)),
+                        rs.getInt(COLUMN_BALANCE)
                 ));
             }
 
@@ -56,9 +61,9 @@ public class AccountDao {
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return Optional.of(new Account(
-                        rs.getInt("id"),
-                        new Card(rs.getString("cardNumber"), rs.getString("cardPIN")),
-                        rs.getInt("balance")));
+                        rs.getInt(COLUMN_ID),
+                        new Card(rs.getString(COLUMN_CARD_NUMBER), rs.getString(COLUMN_CARD_PIN)),
+                        rs.getInt(COLUMN_BALANCE)));
             }
 
             dbConnector.getConnection().commit();
