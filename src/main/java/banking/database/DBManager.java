@@ -17,45 +17,18 @@ public class DBManager {
             );
             """;
 
-    private final SQLiteDataSource dataSource;
-    private Connection connection;
+    private final DBConnector dbConnector;
 
-    public DBManager(String fileName) {
-        dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + fileName);
-        tryToCreateConnection();
-        createTable();
+    public DBManager(DBConnector dbConnector) {
+        this.dbConnector = dbConnector;
     }
 
-    public void closeConnection() {
-        if (this.connection != null) {
-            try {
-                this.connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException("Cannot close a connection with database!", e);
-            }
-        }
-    }
-
-    private void tryToCreateConnection() {
-        try {
-            this.connection = dataSource.getConnection();
-            this.connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new RuntimeException("Cannot create a connection with database!", e);
-        }
-    }
-
-    private void createTable() {
-        try (Statement statement = getConnection().createStatement()) {
+    public void migrateUp() {
+        try (Statement statement = dbConnector.getConnection().createStatement()) {
             statement.executeUpdate(SQL_CREATE_TABLE);
-            getConnection().commit();
+            dbConnector.getConnection().commit();
         } catch (SQLException e) {
             throw new RuntimeException("Cannot create table 'account'", e);
         }
-    }
-
-    public Connection getConnection() {
-        return this.connection;
     }
 }
