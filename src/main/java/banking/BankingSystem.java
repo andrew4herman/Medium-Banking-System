@@ -101,12 +101,12 @@ public class BankingSystem {
         try {
             int income = scanner.nextInt();
             if (income < 1) {
-                throw new Exception();
+                throw new IllegalArgumentException();
             }
 
             bank.addIncome(currentAccount.card().cardNumber(), income);
             System.out.println("Income was added!");
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
             System.out.println("Incorrect input. Enter a number greater than zero!");
         }
     }

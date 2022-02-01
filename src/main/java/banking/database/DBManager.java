@@ -1,8 +1,5 @@
 package banking.database;
 
-import org.sqlite.SQLiteDataSource;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
