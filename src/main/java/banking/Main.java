@@ -14,7 +14,6 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        String BINumber = "400000";
         String JDBCDriverName = "jdbc:sqlite:";
         String fileName = new CliParser(args).optionOf("-fileName")
                 .orElseThrow(() -> new IllegalArgumentException("Incorrect option for -fileName"));
@@ -23,8 +22,10 @@ public class Main {
         SQLiteDataSource sqLiteDataSource = new SQLiteDataSource();
         sqLiteDataSource.setUrl(url);
 
-        Random random = new Random();
         CardValidator cardValidator = new CardValidator();
+        String BINumber = "400000";
+        Random random = new Random();
+
         CardGenerator cardGenerator = new CardGenerator(cardValidator, BINumber, random);
 
         try (DBConnector dbConnector = new DBConnector(sqLiteDataSource);

@@ -4,6 +4,9 @@ import banking.model.Card;
 
 import java.util.Random;
 
+/**
+ * Class for generating a Card objects with number and a PIN
+ */
 public class CardGenerator {
 
     private final CardValidator cardValidator;
@@ -19,6 +22,11 @@ public class CardGenerator {
         this.random = random;
     }
 
+    /**
+     * Create a card number and PIN
+     *
+     * @return A Card object.
+     */
     public Card generate() {
         return new Card(createCardNumber(), createPIN());
     }

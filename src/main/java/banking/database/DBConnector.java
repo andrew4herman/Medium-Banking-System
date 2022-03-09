@@ -5,6 +5,9 @@ import org.sqlite.SQLiteDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * This class is responsible for creating a connection with the database
+ */
 public class DBConnector implements AutoCloseable {
 
     private final SQLiteDataSource dataSource;
@@ -24,10 +27,9 @@ public class DBConnector implements AutoCloseable {
         }
     }
 
-    public Connection getConnection() {
-        return this.connection;
-    }
-
+    /**
+     * Close the connection to the database
+     */
     @Override
     public void close() {
         if (this.connection != null) {
@@ -37,5 +39,9 @@ public class DBConnector implements AutoCloseable {
                 throw new RuntimeException("Cannot close a connection with database!", e);
             }
         }
+    }
+
+    public Connection getConnection() {
+        return this.connection;
     }
 }

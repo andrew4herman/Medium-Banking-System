@@ -10,6 +10,9 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.Optional;
 
+/**
+ * The class is responsible for managing the accounts in the database
+ */
 public class AccountDao {
 
     public static final String GET_BY_CARD_NUMBER =
@@ -31,6 +34,12 @@ public class AccountDao {
         this.dbConnector = dbConnector;
     }
 
+    /**
+     * Given a card number, return the account associated with that card number
+     *
+     * @param cardNumber the card number of the account to get
+     * @return An Optional of Account object or empty one if there is no account with that card number.
+     */
     public Optional<Account> get(String cardNumber) {
         try (PreparedStatement statement =
                      dbConnector.getConnection().prepareStatement(GET_BY_CARD_NUMBER)) {
@@ -52,6 +61,13 @@ public class AccountDao {
         return Optional.empty();
     }
 
+    /**
+     * Given a card number and PIN, return the account with that card number and PIN
+     *
+     * @param cardNumber the card number of the account to get
+     * @param cardPIN the PIN of the card
+     * @return An Optional of Account object or empty one if credentials does not match.
+     */
     public Optional<Account> get(String cardNumber, String cardPIN) {
         try (PreparedStatement statement =
                      dbConnector.getConnection().prepareStatement(GET_BY_CREDENTIALS)) {
@@ -73,6 +89,11 @@ public class AccountDao {
         return Optional.empty();
     }
 
+    /**
+     * Takes a Card object as a parameter and saves it to the database
+     *
+     * @param card the card to be saved
+     */
     public void save(Card card) {
         try (PreparedStatement statement =
                      dbConnector.getConnection().prepareStatement(INSERT_CARD)) {
@@ -86,6 +107,12 @@ public class AccountDao {
         }
     }
 
+    /**
+     * Given a card number and an amount of money, update the balance of the card
+     *
+     * @param cardNumber the card number of the card to update
+     * @param income the amount of money to add to the card
+     */
     public void update(String cardNumber, int income) {
         try (PreparedStatement statement =
                      dbConnector.getConnection().prepareStatement(SQL_UPDATE_BALANCE)) {
@@ -99,6 +126,11 @@ public class AccountDao {
         }
     }
 
+    /**
+     * Given an account id, delete the account with that id
+     *
+     * @param id The id of the account to delete.
+     */
     public void delete(int id) {
         try (PreparedStatement statement =
                      dbConnector.getConnection().prepareStatement(SQL_DELETE)) {
@@ -111,6 +143,13 @@ public class AccountDao {
         }
     }
 
+    /**
+     * It transfers money from one account to another.
+     *
+     * @param from the account number of the account from which money is to be transferred.
+     * @param to The account to transfer money to.
+     * @param money the amount of money to transfer
+     */
     public void executeTransferTransaction(String from, String to, int money) {
         try {
             Connection connection = dbConnector.getConnection();

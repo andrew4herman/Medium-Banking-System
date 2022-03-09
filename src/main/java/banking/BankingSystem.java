@@ -6,6 +6,9 @@ import banking.model.Card;
 import java.util.Optional;
 import java.util.Scanner;
 
+/**
+ * The class represents a banking system
+ */
 public class BankingSystem {
 
     private final Bank bank;
@@ -18,6 +21,9 @@ public class BankingSystem {
         this.scanner = scanner;
     }
 
+    /**
+     * Display the menu, get the user's choice, process the choice, and sync the account
+     */
     public void start() {
         String option;
 
