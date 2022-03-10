@@ -9,12 +9,11 @@ import java.util.Random;
  */
 public class CardGenerator {
 
+    private static final int PIN_SIZE = 4;
+    private static final int ACC_IDENTIFIER_SIZE = 9;
     private final CardValidator cardValidator;
     private final String BINumber;
     private final Random random;
-
-    private static final int PIN_SIZE = 4;
-    private static final int ACC_IDENTIFIER_SIZE = 9;
 
     public CardGenerator(CardValidator cardValidator, String BINumber, Random random) {
         this.cardValidator = cardValidator;

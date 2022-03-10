@@ -65,7 +65,7 @@ public class AccountDao {
      * Given a card number and PIN, return the account with that card number and PIN
      *
      * @param cardNumber the card number of the account to get
-     * @param cardPIN the PIN of the card
+     * @param cardPIN    the PIN of the card
      * @return An Optional of Account object or empty one if credentials does not match.
      */
     public Optional<Account> get(String cardNumber, String cardPIN) {
@@ -111,7 +111,7 @@ public class AccountDao {
      * Given a card number and an amount of money, update the balance of the card
      *
      * @param cardNumber the card number of the card to update
-     * @param income the amount of money to add to the card
+     * @param income     the amount of money to add to the card
      */
     public void update(String cardNumber, int income) {
         try (PreparedStatement statement =
@@ -146,8 +146,8 @@ public class AccountDao {
     /**
      * It transfers money from one account to another.
      *
-     * @param from the account number of the account from which money is to be transferred.
-     * @param to The account to transfer money to.
+     * @param from  the account number of the account from which money is to be transferred.
+     * @param to    The account to transfer money to.
      * @param money the amount of money to transfer
      */
     public void executeTransferTransaction(String from, String to, int money) {

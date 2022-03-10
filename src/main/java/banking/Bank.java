@@ -43,7 +43,7 @@ public class Bank {
      * It returns an optional account object.
      *
      * @param cardNumber The card number of the account to sign in.
-     * @param cardPIN the PIN of the card that is being used to sign in.
+     * @param cardPIN    the PIN of the card that is being used to sign in.
      * @return Optional of Account object or empty one if credentials does not match.
      */
     public Optional<Account> signIn(String cardNumber, String cardPIN) {
@@ -64,7 +64,7 @@ public class Bank {
      * It adds income to the account.
      *
      * @param cardNumber the card number of the account to update
-     * @param income the amount of money that will be added to the account.
+     * @param income     the amount of money that will be added to the account.
      */
     public void addIncome(String cardNumber, int income) {
         accountDao.update(cardNumber, income);
@@ -73,8 +73,8 @@ public class Bank {
     /**
      * It transfers money from one account to another.
      *
-     * @param from the account number of the account to transfer from
-     * @param to the account number of the account to transfer money to.
+     * @param from   the account number of the account to transfer from
+     * @param to     the account number of the account to transfer money to.
      * @param amount The amount of money to transfer.
      */
     public void doTransfer(String from, String to, int amount) {
